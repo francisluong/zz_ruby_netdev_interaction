@@ -1,0 +1,10 @@
+directory "tmp"
+
+file "hello.tmp" => "tmp" do
+  sh "echo 'Hello' > 'tmp/hello.tmp'"
+end
+
+task :ls do
+  output = sh "ls"
+  puts output
+end
