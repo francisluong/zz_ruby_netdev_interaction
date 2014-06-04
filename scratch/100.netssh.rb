@@ -39,27 +39,31 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
     #ssh via event loop
     lp.h1 "RPC"
     rpc = "<rpc message-id=\"1001\"><get-software-information/></rpc>"
+    puts rpc
     MSG_END = "]]>]]>"
     MSG_END_RE = /\]\]>\]\]>[\r\n]*$/
     MSG_CLOSE_SESSION = '<rpc><close-session/></rpc>'       
     channel = ssh.open_channel do |ch|
         ch.exec "netconf" do |netconf, success|
+            $output = ""
+            $output << "Start"
             if success
-                puts "subsystem successfully started"
+                puts "NETCONF subsystem successfully started"
             else
-                puts "subsystem could not be started"
+                puts "NETCONF subsystem could not be started"
             end
             netconf.on_data do |c, data|
                 #if we get the end of message marker, hello message has been received.
                 # now send crude rpc and disconnect
-                if data =~ MSG_END_RE then
-                    puts data
-                    output = netconf.send_data rpc do |exec, success|
+                $output << data
+                #puts data
+                if data =~ MSG_END_RE && rpc != "" then
+                    $output << rpc
+                    netconf.send_data rpc do |x, success|
                         raise "could not execute command" unless success
                     end
                     netconf.send_data MSG_CLOSE_SESSION
-                else 
-                    puts data
+                    rpc = ""
                 end
             end
 
@@ -67,10 +71,12 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
                 puts "ERROR: #{type} #{data}"
             end
 
-            netconf.on_close { puts "done!" }
-            lp.h1 "RPC Output"
-            #puts output
-            #puts netconf.active?
+            netconf.on_close { puts "Closing NETCONF channel!" }
+            $output << "\nFinish"
         end
     end
+    channel.wait
 end
+
+lp.h1 "RPC Output"
+puts $output
