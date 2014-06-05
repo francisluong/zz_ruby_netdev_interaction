@@ -24,6 +24,7 @@ class Auth
   end
 
   def initialize(filepath)
+    #read in userpass file
     filename = File.expand_path(filepath)
     file = File.new(filename , "r")
     modcount = File.chmod(0600, filename)
