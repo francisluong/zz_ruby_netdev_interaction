@@ -18,7 +18,7 @@ class Auth
       @passwd = @pwdatabase[user]
       return 1
     else 
-      puts "Auth: Unable to change user to '#{user}'"
+      raise "Auth: Unable to change user to '#{user}'"
       return nil
     end
   end

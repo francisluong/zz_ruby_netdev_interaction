@@ -1,9 +1,9 @@
 $: << File.expand_path(File.dirname(__FILE__)) 
 require 'auth'
 
-userpassfilename = "auth_spec.rad"
+userpassfilename = "test_userpass"
 describe Auth do
-  context "initialize using file auth_spec.rad" do
+  context "initialize using file #{userpassfilename}" do
     describe '#new' do
       it "reads file contents and sets user and password to the first ones listed" do
         auth = Auth.new(userpassfilename)
@@ -17,7 +17,7 @@ describe Auth do
         auth = Auth.new(tmpfilename)
         s = File.stat(tmpfilename)
         mode = sprintf("%o", s.mode)
-        mode.should eq("100600")
+        expect(mode).to eq("100600")
         FileUtils.rm_f tmpfilename
       end
     end
@@ -25,12 +25,12 @@ describe Auth do
       it "sets user and password for a specified exisiting user (testuser2), returns 1" do
         auth = Auth.new(userpassfilename)
         expect( auth.change_user("testuser2") ).to eq(1)
-        auth.user.should eq("testuser2")
-        auth.passwd.should eq("testpasswd2")
+        expect( auth.user).to eq("testuser2")
+        expect( auth.passwd).to eq("testpasswd2")
       end
-      it "doesn't change anything if user doesn't exist (testuser3), only returns nil" do
+      it "raises an error if user doesn't exist (testuser3), but doesn't change user" do
         auth = Auth.new(userpassfilename)
-        expect( auth.change_user("testuser3") ).to eq(nil)
+        expect{ auth.change_user("testuser3") }.to raise_exception
         expect(auth.user).to eq("testuser1")
         expect(auth.passwd).to eq("testpasswd1")
       end
