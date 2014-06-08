@@ -25,12 +25,19 @@ describe Auth do
       it "sets user and password for a specified exisiting user (testuser2), returns 1" do
         auth = Auth.new(userpassfilename)
         expect( auth.change_user("testuser2") ).to eq(1)
-        expect( auth.user).to eq("testuser2")
-        expect( auth.passwd).to eq("testpasswd2")
+        expect( auth.user ).to eq("testuser2")
+        expect( auth.passwd ).to eq("testpasswd2")
+      end
+      it "scrambles the value of password in the database" do
+        #placeholder
+        auth = Auth.new(userpassfilename)
+        user = auth.user
+        pwdatabase = auth.instance_variable_get(:@pwdatabase)
+        expect( auth.passwd ).not_to eq( pwdatabase[user] )
       end
       it "raises an error if user doesn't exist (testuser3), but doesn't change user" do
         auth = Auth.new(userpassfilename)
-        expect{ auth.change_user("testuser3") }.to raise_exception
+        expect { auth.change_user("testuser3") }.to raise_exception
         expect(auth.user).to eq("testuser1")
         expect(auth.passwd).to eq("testpasswd1")
       end

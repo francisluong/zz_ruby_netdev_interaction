@@ -19,6 +19,12 @@ class Lineprinter
     puts "= #{headline.upcase}"
     puts "============================="
   end
+
+  def h2(headline)
+    puts "\n----------------------------"
+    puts "- #{headline}"
+    puts "----------------------------"
+  end
 end
 
 
