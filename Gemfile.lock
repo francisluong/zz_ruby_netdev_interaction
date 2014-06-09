@@ -11,6 +11,7 @@ GEM
       coderay (~> 1.0)
       method_source (~> 0.8)
       slop (~> 3.4)
+    rake (0.9.6)
     rspec (3.0.0)
       rspec-core (~> 3.0.0)
       rspec-expectations (~> 3.0.0)
@@ -31,4 +32,5 @@ PLATFORMS
 DEPENDENCIES
   nokogiri
   pry
+  rake
   rspec
