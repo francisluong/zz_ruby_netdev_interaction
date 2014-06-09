@@ -1,4 +1,5 @@
-require "pp"
+require "rubygems"
+require "bundler/setup"
 require "openssl"
 require "pry"
 

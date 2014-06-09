@@ -1,7 +1,8 @@
 $: << File.expand_path(File.dirname(__FILE__)) 
+$path = File.expand_path(File.dirname(__FILE__))
 require 'auth'
 
-userpassfilename = "test_userpass"
+userpassfilename = "#{$path}/test_userpass"
 describe Auth do
   context "initialize using file #{userpassfilename}" do
     describe '#new' do
