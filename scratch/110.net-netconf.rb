@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
 require "net/netconf"
-require "~/bin/ruby/auth.rb"
-require "./lp.rb"
+require "userpass"
+require "#{File.expand_path(File.dirname(__FILE__))}/lp.rb"
 require "pry"
 
 if ARGV.length < 2 then
     puts "Usage: #{$0} <path_to_userpass_file> <router_address>"
     exit
 end
-auth = Auth.new(ARGV[0])
+auth = Userpass.new(ARGV[0])
 puts "User: #{auth.user}"
 host = ARGV[1]
 lp = Lineprinter.new

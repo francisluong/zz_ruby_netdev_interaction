@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
 require 'net/netconf'
-require '~/bin/ruby/auth.rb'
+require "userpass"
 
-auth = Auth.new("~/bin/.rad")
+auth = Userpass.new("~/bin/.rad")
 puts "User: #{auth.user}"
 host = "10.155.96.12"
 

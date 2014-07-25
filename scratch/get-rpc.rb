@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
-require "~/bin/ruby/auth.rb"
+require "userpass"
 require "sloe/junos"
 
-auth = Auth.new("~/bin/.rad")
+auth = Userpass.new("~/bin/.rad")
 host = "10.155.96.12"
 login = {:target => host, :username => auth.user, :password => auth.passwd}
 command = ARGV.join " "

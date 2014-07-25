@@ -66,7 +66,7 @@ class Userpass
             #...but only switch if user is already in the pwdatabase
             @current_user = newuser
         else
-            raise "Auth: Unable to change user to '#{newuser}'"
+            raise "Userpass: Unable to change user to '#{newuser}'"
             return nil
         end
     end

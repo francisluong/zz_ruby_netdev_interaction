@@ -1,13 +1,13 @@
 #!/usr/bin/env ruby
 require "net/ssh"
-require "~/bin/ruby/auth.rb"
-require "./lp.rb"
+require "userpass"
+require "#{File.expand_path(File.dirname(__FILE__))}/lp.rb"
 
 if ARGV.length < 2 then
     puts "Usage: #{$0} <path_to_userpass_file> <router_address>"
     exit
 end
-auth = Auth.new(ARGV[0])
+auth = Userpass.new(ARGV[0])
 puts "User: #{auth.user}"
 host = ARGV[1]
 lp = Lineprinter.new
@@ -27,7 +27,7 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
     puts output
     output_array = output.split("\n")
     expressions = [/(.*JUNOS\sSoftware.*)/, /.*/]
-    expressions.each { |expr| 
+    expressions.each { |expr|
         o_expr_match = output_array.select { |line|
             line =~ expr
         }
@@ -42,7 +42,7 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
     puts rpc
     MSG_END = "]]>]]>"
     MSG_END_RE = /\]\]>\]\]>[\r\n]*$/
-    MSG_CLOSE_SESSION = '<rpc><close-session/></rpc>'       
+    MSG_CLOSE_SESSION = '<rpc><close-session/></rpc>'
     channel = ssh.open_channel do |ch|
         ch.exec "netconf" do |netconf, success|
             $output = ""
