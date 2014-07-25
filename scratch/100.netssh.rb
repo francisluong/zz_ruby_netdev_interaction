@@ -43,10 +43,12 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
     MSG_END = "]]>]]>"
     MSG_END_RE = /\]\]>\]\]>[\r\n]*$/
     MSG_CLOSE_SESSION = '<rpc><close-session/></rpc>'
+    done = false
+    wait_sec = 0.01
     channel = ssh.open_channel do |ch|
         ch.exec "netconf" do |netconf, success|
             $output = ""
-            $output << "Start"
+            $output << "Start\n"
             if success
                 puts "NETCONF subsystem successfully started"
             else
@@ -71,11 +73,16 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
                 puts "ERROR: #{type} #{data}"
             end
 
-            netconf.on_close { puts "Closing NETCONF channel!" }
-            $output << "\nFinish"
+            netconf.on_close {
+                puts "Closing NETCONF channel!"
+                done = true
+                $output << "\nFinish"
+            }
+
         end
     end
-    channel.wait
+
+    ssh.loop(wait_sec) {not done}
 end
 
 lp.h1 "RPC Output"
