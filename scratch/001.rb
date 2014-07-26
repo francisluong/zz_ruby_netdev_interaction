@@ -1,12 +1,13 @@
 #!/usr/bin/ruby
 
-require "../lp.rb"
+require "#{File.expand_path(File.dirname(__FILE__))}/lp.rb"
 
 lp = Lineprinter.new
 
 ###
 lp.h1("String Basics")
 string = "My first string"
+print "bob"
 puts "Length of #{string} = #{string.length}"
 puts "Number of 'i': #{string.count 'i'}"
 length = string.length

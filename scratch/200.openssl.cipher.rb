@@ -1,7 +1,7 @@
 #!/usr/bin/ruby
 
 require "openssl"
-require "./lp.rb"
+require "#{File.expand_path(File.dirname(__FILE__))}/lp.rb"
 
 lp = Lineprinter.new
 
