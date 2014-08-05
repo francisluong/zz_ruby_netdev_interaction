@@ -47,8 +47,8 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
     wait_sec = 0.01
     channel = ssh.open_channel do |ch|
         ch.exec "netconf" do |netconf, success|
-            $output = ""
-            $output << "Start\n"
+            output = ""
+            output << "Start\n"
             if success
                 puts "NETCONF subsystem successfully started"
             else
@@ -57,10 +57,10 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
             netconf.on_data do |c, data|
                 #if we get the end of message marker, hello message has been received.
                 # now send crude rpc and disconnect
-                $output << data
+                output << data
                 #puts data
                 if data =~ MSG_END_RE && rpc != "" then
-                    $output << rpc
+                    output << rpc
                     netconf.send_data rpc do |x, success|
                         raise "could not execute command" unless success
                     end
@@ -76,7 +76,7 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
             netconf.on_close {
                 puts "Closing NETCONF channel!"
                 done = true
-                $output << "\nFinish"
+                output << "\nFinish"
             }
 
         end
@@ -86,4 +86,4 @@ Net::SSH.start(host, auth.user, :password => auth.passwd) do |ssh|
 end
 
 lp.h1 "RPC Output"
-puts $output
+puts output

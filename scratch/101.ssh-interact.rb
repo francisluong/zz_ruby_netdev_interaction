@@ -14,5 +14,6 @@ end
 
     commands_list = ['show version', "show chassis hardware"]
 
-    ssh = SSH_Interact.new(auth.user, auth.passwd)
+    ssh = NetDev::SSH.new(auth.user, auth.passwd)
     ssh.connect(host)
+    ssh.send("show ver\nshow inventory")

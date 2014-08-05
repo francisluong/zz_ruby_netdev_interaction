@@ -3,3 +3,4 @@ gem 'rake'
 gem 'nokogiri'
 gem 'rspec', :require => 'spec'
 gem "pry"
+gem "net-ssh-telnet"
