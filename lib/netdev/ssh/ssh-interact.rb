@@ -3,10 +3,12 @@ require "net/ssh/telnet"
 
 module NetDev
 class SSH
+    attr_accessor :prompt_re
+
     def initialize(user, passwd)
         @user = user
         @passwd = passwd
-        @prompt_re = /^([@a-zA-Z0-9\.\-\_]+[>#%])/
+        @prompt_re = /^([@a-zA-Z0-9\.\-\_]+[>#%$])/
         @reset_timeout_on_newlines = true
         @timeout_sec = 10
         @wait_sec = 0.01
@@ -24,7 +26,6 @@ class SSH
             "Session" => @ssh,
             "Prompt" => @prompt_re
         )
-        @session.cmd("terminal length 0")
     end
 
     def wait_for_prompt

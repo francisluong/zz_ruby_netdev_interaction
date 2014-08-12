@@ -1,6 +1,9 @@
+require 'simplecov'
+SimpleCov.start
 $: << File.expand_path(File.dirname(__FILE__))
 $path = File.expand_path(File.dirname(__FILE__))
 require 'userpass'
+
 
 userpassfilename = "#{$path}/test_userpass"
 describe Userpass do
