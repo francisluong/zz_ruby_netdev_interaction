@@ -9,3 +9,5 @@ install:
  - gem build userpass.gemspec
  - gem install netdev
  - gem install userpass
+ - gem contents netdev
+ - gem contents userpass

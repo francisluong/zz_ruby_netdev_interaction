@@ -1,5 +1,5 @@
 #!/usr/bin/env ruby
-require "ssh-interact"
+require "netdev/ssh"
 require "userpass"
 
 if ARGV.length < 2 then
