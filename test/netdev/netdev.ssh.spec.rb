@@ -24,4 +24,22 @@ describe NetDev::SSH do
     lastline_varname = output.lines[-1].split("=")[0]
     expect(lastline_varname).to eq("USER")
   end
+
+  it "raises Net::SSH::AuthenticationFailed exception when user/pass fails" do
+    u = "fail"
+    p = "fail"
+    host = "localhost"
+    ssh = NetDev::SSH.new(user: u, passwd: p,
+                          disable_pubkey_auth: true)
+    ssh.prompt_re = /^.*\$/
+    expect { ssh.connect(host) }.to raise_error(Net::SSH::AuthenticationFailed)
+  end
+  it "raises NetDev::UnableToConnect exception when pubkey authentication fails" do
+    u = "fail"
+    host = "localhost"
+    ssh2 = NetDev::SSH.new(user: u)
+    ssh2.prompt_re = /^.*\$/
+    ssh2.quiet = false
+    expect { ssh2.connect(host) }.to raise_error(NetDev::UnableToConnect)
+  end
 end
