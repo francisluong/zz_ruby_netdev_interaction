@@ -3,7 +3,7 @@ require 'netdev/ssh'
 SimpleCov.start
 
 describe NetDev::SSH do
-  it "allows a user to login to a router with username and password" do
+  it "allows a user to login to a router with username and pubkey" do
     user = ENV['USER']
     host = "localhost"
     ssh = NetDev::SSH.new(user: user)
