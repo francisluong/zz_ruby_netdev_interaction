@@ -1,4 +1,0 @@
-users:
-    testuser1: testpasswd1
-    testuser2: testpasswd2
-defaultuser: testuser1

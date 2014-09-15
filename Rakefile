@@ -5,12 +5,14 @@
 task :default => 'test'
 
 namespace :test do
-  Dir.glob("test/*").each do |library|
+  specroot = "./spec"
+  specfolders = Dir.glob("#{specroot}/*").select { |dir| File.directory?(dir) }
+  specfolders.each do |library|
     filename = File.basename(library)
     taskname = filename.to_sym
     desc "Run tests for suite #{taskname}"
     task taskname do
-      Dir.glob("test/#{taskname}/**/*spec.rb*").each do |specfile|
+      Dir.glob("#{specroot}/#{taskname}/**/*spec*").each do |specfile|
         if specfile =~ /.*vendor\/bundle.*/
         else
           output = sh "rspec -fd -c #{specfile}"
