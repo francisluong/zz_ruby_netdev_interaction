@@ -1,4 +1,5 @@
 require "net/ssh"
+require 'timeout'
 require "pry"
 
 module NetDev
@@ -101,46 +102,40 @@ module NetDev
 
     def wait_for_regex(expression)
       #Loop: receive and wait until a regular expression is matched in output
-      channel = @channel
-      start_time = Time.now
       match = false
-      timeout = false
-      return_text = ""
-      has_newline_re = /.*\n/
-      until (match or timeout)
-        @ssh.process(0.1)
-        #process lines if we get matches
-        examine_this_text = @received_text[@processed_text.length..-1]
-        # get length of examine_this_text because we have to treat last
-        # line differently
-        #
-        # it may get more stuff added to it so we don't add it to
-        # processed immediately
-        numlines = examine_this_text.length
-        is_last_line = false
-        #iterate through lines and check for matches
-        current_line = 0
-        examine_this_text.lines.each do |line|
-          current_line += 1
-          #is_last_line will be true if last line has been reached
-          is_last_line = (numlines == current_line)
-          #add the line to @processed_text if not last line
-          @processed_text << line if not is_last_line
-          #print line if we're not suppressing output
-          print line unless @quiet
-          #check match
-          match = (expression === line)
-          if match
-            if is_last_line
-              @processed_text << line
+      Timeout::timeout(@timeout_sec,TimeoutException) do
+        until (match )
+          @ssh.process(0.1)
+          #process lines if we get matches
+          examine_this_text = @received_text[@processed_text.length..-1]
+          # get length of examine_this_text because we have to treat last
+          # line differently
+          #
+          # it may get more stuff added to it so we don't add it to
+          # processed immediately
+          numlines = examine_this_text.length
+          is_last_line = false
+          #iterate through lines and check for matches
+          current_line = 0
+          examine_this_text.lines.each do |line|
+            current_line += 1
+            #is_last_line will be true if last line has been reached
+            is_last_line = (numlines == current_line)
+            #add the line to @processed_text if not last line
+            @processed_text << line if not is_last_line
+            #print line if we're not suppressing output
+            print line unless @quiet
+            #check match
+            match = (expression === line)
+            if match
+              if is_last_line
+                @processed_text << line
+              end
+              break
             end
-            break
           end
         end
-        #update timeout check
-        timeout = ((Time.now - start_time) > @timeout_sec)
       end
-      raise TimeoutError, "Timeout Waiting for Expression: #{expression}" if ((not match) and timeout)
       #remove @processed_text from @received_text
       @received_text = @received_text[@processed_text.length..-1]
       binding.pry if @received_text == nil
@@ -159,9 +154,13 @@ module NetDev
       channel.send_data(this_line)
     end
 
+    def send_wait(regex,single_command)
+      sendline(single_command)
+      wait_for_regex(regex)
+    end
+
     def send(textblock)
       #send a series of lines, wait for prompt after each
-      channel = @channel
       return_text = ""
       textblock.lines do |line|
         sendline line
@@ -170,17 +169,17 @@ module NetDev
       return return_text
     end
 
+    class UnableToConnect < Exception
+
+    end
+
+    class ConnectionExists < Exception
+
+    end
+
+    class TimeoutException < Exception
+
+    end
   end
 
-  class UnableToConnect < Exception
-
-  end
-
-  class ConnectionExists < Exception
-
-  end
-
-  class TimeoutException < Exception
-
-  end
 end
