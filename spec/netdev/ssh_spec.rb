@@ -12,6 +12,7 @@ describe NetDev::SSH do
     ssh.connect(host)
     expect(ssh).not_to eq(nil)
   end
+
   it "only returns text up to the line matching expression" do
     user = ENV['USER']
     host = "localhost"
@@ -32,14 +33,16 @@ describe NetDev::SSH do
     ssh = NetDev::SSH.new(user: u, passwd: p,
                           disable_pubkey_auth: true)
     ssh.prompt_re = /^.*\$/
+    ssh.quiet = true
     expect { ssh.connect(host) }.to raise_error(Net::SSH::AuthenticationFailed)
   end
+
   it "raises NetDev::UnableToConnect exception when pubkey authentication fails" do
     u = "fail"
     host = "localhost"
     ssh2 = NetDev::SSH.new(user: u)
     ssh2.prompt_re = /^.*\$/
-    ssh2.quiet = false
+    ssh2.quiet = true
     expect { ssh2.connect(host) }.to raise_error(NetDev::UnableToConnect)
   end
 end
