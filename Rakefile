@@ -1,25 +1,16 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'rake/clean'
+CLEAN.include("coverage", "*.gem")
 
-task :default => 'test'
-
-namespace :test do
-  specroot = "./spec"
-  specfolders = Dir.glob("#{specroot}/*").select { |dir| File.directory?(dir) }
-  specfolders.each do |library|
-    filename = File.basename(library)
-    taskname = filename.to_sym
-    desc "Run tests for suite #{taskname}"
-    task taskname do
-      Dir.glob("#{specroot}/#{taskname}/**/*spec*").each do |specfile|
-        if specfile =~ /.*vendor\/bundle.*/
-        else
-          output = sh "rspec -fd -c #{specfile}"
-        end
-      end
-    end
-  end
+begin
+  require 'rspec/core/rake_task'
+  test = RSpec::Core::RakeTask.new(:test)
+  test.rspec_opts = ['-fd','-c']
+  task :default => :test
+rescue LoadError
+  # no rspec available
 end
 
 desc "Run ALL Tests"
@@ -31,13 +22,6 @@ task :test do
   end
 end
 
-desc "Clean Up"
-task :clean do
-  sh "rm -rf coverage"
-  sh "rm Gemfile.lock"
-  sh "rm *.gem"
-end
-
 desc "Build"
 task "build" do
   begin
@@ -45,5 +29,4 @@ task "build" do
   rescue Gem::LoadError
     system "gem install bundler"
   end
-
 end
