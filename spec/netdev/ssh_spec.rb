@@ -37,12 +37,12 @@ describe NetDev::SSH do
     expect { ssh.connect(host) }.to raise_error(Net::SSH::AuthenticationFailed)
   end
 
-  it "raises NetDev::SSH::UnableToConnect exception when pubkey authentication fails" do
+  it "raises Net::SSH::AuthenticationFailed exception when pubkey authentication fails" do
     u = "fail"
     host = "localhost"
     ssh2 = NetDev::SSH.new(user: u)
     ssh2.prompt_re = /^.*\$/
     ssh2.quiet = true
-    expect { ssh2.connect(host) }.to raise_error(NetDev::SSH::AuthenticationFailed)
+    expect { ssh2.connect(host) }.to raise_error(Net::SSH::AuthenticationFailed)
   end
 end
