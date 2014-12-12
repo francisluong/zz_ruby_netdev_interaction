@@ -43,6 +43,6 @@ describe NetDev::SSH do
     ssh2 = NetDev::SSH.new(user: u)
     ssh2.prompt_re = /^.*\$/
     ssh2.quiet = true
-    expect { ssh2.connect(host) }.to raise_error(NetDev::SSH::UnableToConnect)
+    expect { ssh2.connect(host) }.to raise_error(NetDev::SSH::AuthenticationFailed)
   end
 end

@@ -1,36 +1,34 @@
 require "net/ssh"
 require 'timeout'
 require "pry"
+require 'logger'
 
 module NetDev
   class SSH
     attr_accessor :prompt_re, :quiet, :timeout_sec
 
-    def initialize(user: "",
-                   passwd: "",
-                   keys: [],
-                   disable_pubkey_auth: false)
+    def initialize(user: "", passwd: "", keys: [], disable_pubkey_auth: false)
       #constructor, does not connect to host
-      @user = user
-      @passwd = passwd
-      @prompt_re = /^([@a-zA-Z0-9\.\-\_\:]*[>#%$])/
-      @reset_timeout_on_newlines = true
-      @timeout_sec = 10
-      @wait_sec = 0.01
-      @quiet = false
-      @received_text = ""
-      @processed_text = ""
-      @ssh = nil
+      @auth_methods = ['none', 'pubkey', 'password']
       @channel = nil
       @eof = false
+      @log = Logger.new(STDOUT)
+      @passwd = passwd
+      @prompt_re = /^([@a-zA-Z0-9\.\-\_\:]*[>#%$])/
+      @processed_text = ""
+      @quiet = false
+      @received_text = ""
+      @reset_timeout_on_newlines = true
+      @ssh = nil
       @state = :NetDev_Init
-      if keys.empty?
-        ["~/.ssh/id_rsa", "~/.ssh/id_dsa"].each do |keyfilepath|
-          keyfilepath = File.expand_path(keyfilepath)
-          keys << keyfilepath if File.file?(keyfilepath)
-        end
+      @timeout_sec = 10
+      @user = user
+      @wait_sec = 0.01
+      ["~/.ssh/id_rsa", "~/.ssh/id_dsa"].each do |keyfilepath|
+        @keys ||= []
+        keyfilepath = File.expand_path(keyfilepath)
+        keys << keyfilepath if File.file?(keyfilepath)
       end
-      @keys = keys
       @disable_pubkey_auth = disable_pubkey_auth
     end
 
@@ -38,36 +36,17 @@ module NetDev
       #connect to SSH target and open channel
       raise ConnectionExists if not @state == :NetDev_Init
       @port = port
-      # auth_methods: “publickey”, “hostbased”, “password”, and “keyboard-interactive”
-      #attempt to connect using pubkey
-      begin
-        if (not @disable_pubkey_auth and not @keys.empty?)
-          puts "Attempting Pubkey" if not @quiet
-          @ssh = Net::SSH.start(
-              hostname,
-              @user,
-              :port => @port,
-              :keys => @keys,
-              :auth_methods => ["publickey"])
-          @state = :NetDev_Connect if @ssh
-        end
-      rescue Net::SSH::AuthenticationFailed
-        puts "Pubkey Auth Failed"
-      end
-      # if @state != :NetDev_Connect and @passwd != "", attempt
-      #   to connect via username/passwd
-      if (@state != :NetDev_Connect) && (@passwd != "")
-        puts "Attempting Password" if not @quiet
-        @ssh = Net::SSH.start(
-            hostname,
-            @user,
-            :port => port,
-            :password => @passwd,
-            :auth_methods => ["password"])
-
-        @state = :NetDev_Connect if @ssh
-      end
-      raise UnableToConnect if (@state != :NetDev_Connect)
+      @auth_methods.delete('pubkey') if (@disable_pubkey_auth || @keys.empty?)
+      @ssh = Net::SSH.start(
+        hostname,
+        @user,
+        :password => @passwd,
+        :port => @port,
+        # :auth_methods => @auth_methods,
+        # :logger => @log
+      )
+      @state = :NetDev_Connect if @ssh
+      raise UnableToConnect unless @state == :NetDev_Connect
       @ssh.open_channel do |channel|
         channel.request_pty do |ch, success|
           if success == false
